@@ -1,0 +1,6 @@
+{
+  "MovieName": {"S": "Jaws"},
+  "Director": {"S": "Steven Spielberg"},
+  "ReleaseYear": {"N": "1975"},
+  "Revenue": {"S": "260.00M"}
+}

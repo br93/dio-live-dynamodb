@@ -7,117 +7,191 @@ Repositório para o live coding do dia 30/09/2021 sobre o Amazon DynamoDB
 
 ### Comandos para execução do experimento:
 
-
-- Criar uma tabela
+- Criar tabela de filmes
 
 ```
 aws dynamodb create-table \
-    --table-name Music \
+    --table-name Movie \
     --attribute-definitions \
-        AttributeName=Artist,AttributeType=S \
-        AttributeName=SongTitle,AttributeType=S \
+        AttributeName=MovieName,AttributeType=S \
+        AttributeName=Director,AttributeType=S \
     --key-schema \
-        AttributeName=Artist,KeyType=HASH \
-        AttributeName=SongTitle,KeyType=RANGE \
+        AttributeName=MovieName,KeyType=HASH \
+        AttributeName=Director,KeyType=RANGE \
     --provisioned-throughput \
         ReadCapacityUnits=10,WriteCapacityUnits=5
 ```
 
-- Inserir um item
+- Criar tabela com os gêneros dos filmes
 
 ```
-aws dynamodb put-item \
-    --table-name Music \
-    --item file://itemmusic.json \
+aws dynamodb create-table \
+    --table-name MovieGenre \
+    --attribute-definitions \
+        AttributeName=MovieName,AttributeType=S \
+        AttributeName=Genre,AttributeType=S \
+    --key-schema \
+        AttributeName=MovieName,KeyType=HASH \
+        AttributeName=Genre,KeyType=RANGE \
+    --provisioned-throughput \
+        ReadCapacityUnits=10,WriteCapacityUnits=5
+```
+
+![Tabelas na Amazon DynamoDB](./resources/tables.png)
+
+- Criar index global secundário baseado no diretor
+
+```
+aws dynamodb update-table \
+    --table-name Movie \
+    --attribute-definitions AttributeName=Director,AttributeType=S \
+    --global-secondary-index-updates \
+        "[{\"Create\":{\"IndexName\": \"Director-index\",\"KeySchema\":[{\"AttributeName\":\"Director\",\"KeyType\":\"HASH\"}], \
+        \"ProvisionedThroughput\": {\"ReadCapacityUnits\": 10, \"WriteCapacityUnits\": 5      },\"Projection\":{\"ProjectionType\":\"ALL\"}}}]"
+```
+
+- Criar index global secundário baseado no ano de lançamento
+
+```
+aws dynamodb update-table \
+    --table-name Movie \
+    --attribute-definitions AttributeName=ReleaseYear,AttributeType=N \
+    --global-secondary-index-updates \
+        "[{\"Create\":{\"IndexName\": \"ReleaseYear-index\",\"KeySchema\":[{\"AttributeName\":\"ReleaseYear\",\"KeyType\":\"HASH\"}], \
+        \"ProvisionedThroughput\": {\"ReadCapacityUnits\": 10, \"WriteCapacityUnits\": 5      },\"Projection\":{\"ProjectionType\":\"ALL\"}}}]"
+```
+
+- Criar index global secundário baseado no diretor e no ano de lançamento
+
+```
+aws dynamodb update-table \
+    --table-name Movie \
+    --attribute-definitions\
+        AttributeName=Director,AttributeType=S \
+        AttributeName=ReleaseYear,AttributeType=N \
+    --global-secondary-index-updates \
+        "[{\"Create\":{\"IndexName\": \"DirectorReleaseYear-index\",\"KeySchema\":[{\"AttributeName\":\"Director\",\"KeyType\":\"HASH\"}, {\"AttributeName\": \"ReleaseYear\", \"KeyType\": \"RANGE\"}], \
+        \"ProvisionedThroughput\": {\"ReadCapacityUnits\": 10, \"WriteCapacityUnits\": 5      },\"Projection\":{\"ProjectionType\":\"ALL\"}}}]"
+```
+
+![Indexes globais secundários de Movie](./resources/movie_global_indexes.png)
+
+- Criar index global secundário baseado no gênero
+
+```
+aws dynamodb update-table \
+    --table-name MovieGenre \
+    --attribute-definitions AttributeName=Genre,AttributeType=S \
+    --global-secondary-index-updates \
+        "[{\"Create\":{\"IndexName\": \"Genre-index\",\"KeySchema\":[{\"AttributeName\":\"Genre\",\"KeyType\":\"HASH\"}], \
+        \"ProvisionedThroughput\": {\"ReadCapacityUnits\": 10, \"WriteCapacityUnits\": 5      },\"Projection\":{\"ProjectionType\":\"ALL\"}}}]"
+```
+
+![Indexes globais secundários de MovieGenre](./resources/movie_genre_global_indexes.png)
+
+- Inserir um item na tabela Movie
+
+```
+    aws dynamodb put-item \
+        --table-name Movie \
+        --item file://src/itemmovie.json \
+```
+
+- Inserir os gêneros do último filme adicionado
+
+```
+aws dynamodb batch-write-item \
+    --request-items file://src/itemmoviegenre.json \
 ```
 
 - Inserir múltiplos itens
 
 ```
 aws dynamodb batch-write-item \
-    --request-items file://batchmusic.json
+    --request-items file://src/batchmovie.json \
 ```
 
-- Criar um index global secundário baeado no título do álbum
+- Inserir os gêneros dos últimos filmes adicionados
 
 ```
-aws dynamodb update-table \
-    --table-name Music \
-    --attribute-definitions AttributeName=AlbumTitle,AttributeType=S \
-    --global-secondary-index-updates \
-        "[{\"Create\":{\"IndexName\": \"AlbumTitle-index\",\"KeySchema\":[{\"AttributeName\":\"AlbumTitle\",\"KeyType\":\"HASH\"}], \
-        \"ProvisionedThroughput\": {\"ReadCapacityUnits\": 10, \"WriteCapacityUnits\": 5      },\"Projection\":{\"ProjectionType\":\"ALL\"}}}]"
+aws dynamodb batch-write-item \
+    --request-items file://src/batchmoviegenre.json \
 ```
 
-- Criar um index global secundário baseado no nome do artista e no título do álbum
+#### Movie:
 
-```
-aws dynamodb update-table \
-    --table-name Music \
-    --attribute-definitions\
-        AttributeName=Artist,AttributeType=S \
-        AttributeName=AlbumTitle,AttributeType=S \
-    --global-secondary-index-updates \
-        "[{\"Create\":{\"IndexName\": \"ArtistAlbumTitle-index\",\"KeySchema\":[{\"AttributeName\":\"Artist\",\"KeyType\":\"HASH\"}, {\"AttributeName\":\"AlbumTitle\",\"KeyType\":\"RANGE\"}], \
-        \"ProvisionedThroughput\": {\"ReadCapacityUnits\": 10, \"WriteCapacityUnits\": 5      },\"Projection\":{\"ProjectionType\":\"ALL\"}}}]"
-```
+![Itens de Movie](./resources/movie_items.png)
 
-- Criar um index global secundário baseado no título da música e no ano
+#### MovieGenre:
 
-```
-aws dynamodb update-table \
-    --table-name Music \
-    --attribute-definitions\
-        AttributeName=SongTitle,AttributeType=S \
-        AttributeName=SongYear,AttributeType=S \
-    --global-secondary-index-updates \
-        "[{\"Create\":{\"IndexName\": \"SongTitleYear-index\",\"KeySchema\":[{\"AttributeName\":\"SongTitle\",\"KeyType\":\"HASH\"}, {\"AttributeName\":\"SongYear\",\"KeyType\":\"RANGE\"}], \
-        \"ProvisionedThroughput\": {\"ReadCapacityUnits\": 10, \"WriteCapacityUnits\": 5      },\"Projection\":{\"ProjectionType\":\"ALL\"}}}]"
-```
+![Itens de MovieGenre](./resources/movie_genre_items.png)
 
-- Pesquisar item por artista
+- Pesquisar filme por nome
 
 ```
 aws dynamodb query \
-    --table-name Music \
-    --key-condition-expression "Artist = :artist" \
-    --expression-attribute-values  '{":artist":{"S":"Iron Maiden"}}'
+    --table-name Movie \
+    --key-condition-expression "MovieName = :name" \
+    --expression-attribute-values  '{":name":{"S":"Jaws"}}'
 ```
-- Pesquisar item por artista e título da música
+
+![Resultado da busca por nome](./resources/query_movie_movie_name.png)
+
+- Pesquisar gêneros de filme por nome
 
 ```
 aws dynamodb query \
-    --table-name Music \
-    --key-condition-expression "Artist = :artist and SongTitle = :title" \
-    --expression-attribute-values file://keyconditions.json
+    --table-name MovieGenre \
+    --key-condition-expression "MovieName = :name" \
+    --expression-attribute-values  '{":name":{"S":"Jaws"}}'
 ```
 
-- Pesquisa pelo index secundário baseado no título do álbum
+![Resultado da busca por nome](./resources/query_movie_genre_movie_name.png)
 
-```
-aws dynamodb query \
-    --table-name Music \
-    --index-name AlbumTitle-index \
-    --key-condition-expression "AlbumTitle = :name" \
-    --expression-attribute-values  '{":name":{"S":"Fear of the Dark"}}'
-```
-
-- Pesquisa pelo index secundário baseado no nome do artista e no título do álbum
+- Pesquisa pelo index secundário baseado no diretor
 
 ```
 aws dynamodb query \
-    --table-name Music \
-    --index-name ArtistAlbumTitle-index \
-    --key-condition-expression "Artist = :v_artist and AlbumTitle = :v_title" \
-    --expression-attribute-values  '{":v_artist":{"S":"Iron Maiden"},":v_title":{"S":"Fear of the Dark"} }'
+    --table-name Movie \
+    --index-name Director-index \
+    --key-condition-expression "Director = :director" \
+    --expression-attribute-values  '{":director":{"S":"Steven Spielberg"}}'
 ```
 
-- Pesquisa pelo index secundário baseado no título da música e no ano
+![Resultado da busca por diretor](./resources/query_movie_director.png)
+
+- Pesquisa pelo index secundário baseado no ano de lançamento
 
 ```
 aws dynamodb query \
-    --table-name Music \
-    --index-name SongTitleYear-index \
-    --key-condition-expression "SongTitle = :v_song and SongYear = :v_year" \
-    --expression-attribute-values  '{":v_song":{"S":"Wasting Love"},":v_year":{"S":"1992"} }'
+    --table-name Movie \
+    --index-name ReleaseYear-index \
+    --key-condition-expression "ReleaseYear = :year" \
+    --expression-attribute-values  '{":year":{"N":"1993"}}'
 ```
+
+![Resultado da busca por ano de lançamento](./resources/query_movie_release_year.png)
+
+- Pesquisa pelo index secundário baseado no diretor e ano de lançamento
+
+```
+aws dynamodb query \
+    --table-name Movie \
+    --index-name DirectorReleaseYear-index \
+    --key-condition-expression "Director = :director and ReleaseYear = :year" \
+    --expression-attribute-values  '{":director":{"S":"Steven Spielberg"},":year":{"N":"1993"} }'
+```
+
+![Resultado da busca por direto e ano de lançamento](./resources/query_movie_director_release_year.png)
+
+- Pesquisa pelo index secundário baseado no gênero
+
+```
+aws dynamodb query \
+    --table-name MovieGenre \
+    --index-name Genre-index \
+    --key-condition-expression "Genre = :genre" \
+    --expression-attribute-values  '{":genre":{"S":"Sci-fi"}}'
+```
+
+![Resultado da busca por gênero](./resources/query_movie_genre_genre.png)

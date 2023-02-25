@@ -1,0 +1,22 @@
+{
+  "MovieGenre": [
+      {
+          "PutRequest": {
+              "Item": {
+                "MovieName": {"S": "Jaws"},
+                "Genre": {"S": "Adventure"}
+              }
+          }
+      },
+      {
+          "PutRequest": {
+              "Item": {
+                "MovieName": {"S": "Jaws"},
+                "Genre": {"S": "Thriller"}
+              
+              }
+          }
+      }
+      
+    ]
+}

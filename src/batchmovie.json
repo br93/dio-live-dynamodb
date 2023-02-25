@@ -1,0 +1,34 @@
+{
+    "Movie": [
+        {
+            "PutRequest": {
+                "Item": {
+                  "MovieName": {"S": "Jurassic Park"},
+                  "Director": {"S": "Steven Spielberg"},
+                  "ReleaseYear": {"N": "1993"},
+                  "Revenue": {"S": "402.45M"}
+                }
+            }
+        },
+        {
+            "PutRequest": {
+                "Item": {
+                  "MovieName": {"S": "ET"},
+                  "Director": {"S": "Steven Spielberg"},
+                  "ReleaseYear": {"N": "1982"},
+                  "Revenue": {"S": "435.11M"}
+                }
+            }
+        },
+        {
+            "PutRequest": {
+                "Item": {
+                  "MovieName": {"S": "Schindler's List"},
+                  "Director": {"S": "Steven Spielberg"},
+                  "ReleaseYear": {"N": "1993"},
+                  "Revenue": {"S": "96.90M"}
+                }
+            }
+        }
+      ]
+}

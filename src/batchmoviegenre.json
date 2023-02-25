@@ -1,0 +1,87 @@
+{
+  "MovieGenre": [
+      {
+          "PutRequest": {
+              "Item": {
+                "MovieName": {"S": "Jurassic Park"},
+                "Genre": {"S": "Action"}
+              }
+          }
+      },
+      {
+          "PutRequest": {
+              "Item": {
+                "MovieName": {"S": "Jurassic Park"},
+                "Genre": {"S": "Thriller"}
+              
+              }
+          }
+      },
+      {
+        "PutRequest": {
+            "Item": {
+              "MovieName": {"S": "Jurassic Park"},
+              "Genre": {"S": "Sci-Fi"}
+            
+            }
+        }
+      },
+      {
+        "PutRequest": {
+            "Item": {
+              "MovieName": {"S": "ET"},
+              "Genre": {"S": "Adventure"}
+            
+            }
+        }
+      },
+      {
+        "PutRequest": {
+            "Item": {
+              "MovieName": {"S": "ET"},
+              "Genre": {"S": "Family"}
+            
+            }
+        }
+      },
+      {
+        "PutRequest": {
+            "Item": {
+              "MovieName": {"S": "ET"},
+              "Genre": {"S": "Sci-Fi"}
+            
+            }
+        }
+      },
+      {
+        "PutRequest": {
+            "Item": {
+              "MovieName": {"S": "Schindler's List"},
+              "Genre": {"S": "Biography"}
+            
+            }
+        }
+      },
+      {
+        "PutRequest": {
+            "Item": {
+              "MovieName": {"S": "Schindler's List"},
+              "Genre": {"S": "Drama"}
+            
+            }
+        }
+      },
+      {
+        "PutRequest": {
+            "Item": {
+              "MovieName": {"S": "Schindler's List"},
+              "Genre": {"S": "History"}
+            
+            }
+        }
+      }                  
+      
+      
+      
+    ]
+}
